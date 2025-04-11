@@ -70,7 +70,10 @@ function ProtectedRoute({ children }) {
     try {
       dispatch(ShowLoading());
       const response = await GetCurrentUser();
-      console.log(response);
+      if (!response?.success) {
+        message?.error(response?.message);
+        navigate("/login");
+      }
       dispatch(SetUser(response.data));
       dispatch(HideLoading());
     } catch (error) {
