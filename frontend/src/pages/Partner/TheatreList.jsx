@@ -3,9 +3,10 @@ import { Table, message, Button } from "antd";
 import TheatreFormModal from "./TheatreFormModal";
 import DeleteTheatreModal from "./DeleteTheatreModal";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { getAllTheatres } from "../../api/theatre";
+import { getTheatreByOwnerId } from "../../api/theatre";
 import { useSelector, useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from "../../redux/loaderSlice";
+import ShowModal from "./ShowModal";
 function TheatreList() {
   const { user } = useSelector((state) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,15 +14,17 @@ function TheatreList() {
   const [selectedTheatre, setSelectedTheatre] = useState(null);
   const [formType, setFormType] = useState("add");
   const [theatres, setTheatres] = useState([]);
+  const [isShowModalOpen, setIsShowModalOpen] = useState(false);
+
   const dispatch = useDispatch();
   const getData = async () => {
     try {
       dispatch(ShowLoading());
-      const response = await getAllTheatres(user._id);
+      const response = await getTheatreByOwnerId(user._id);
 
       if (response.success) {
         setTheatres(
-          response.theatres?.map((theatre) => {
+          response.theatre?.map((theatre) => {
             return {
               ...theatre,
               key: `theatre${theatre._id}`,
@@ -95,7 +98,7 @@ function TheatreList() {
             >
               <DeleteOutlined />
             </Button>
-            {/* {data.isActive && (
+            {data.isActive && (
               <Button
                 onClick={() => {
                   setIsShowModalOpen(true);
@@ -104,7 +107,7 @@ function TheatreList() {
               >
                 + Shows
               </Button>
-            )} */}
+            )}
           </div>
         );
       },
@@ -143,13 +146,13 @@ function TheatreList() {
           getData={getData}
         />
       )}
-      {/* {isShowModalOpen && (
+      {isShowModalOpen && (
         <ShowModal
           isShowModalOpen={isShowModalOpen}
           setIsShowModalOpen={setIsShowModalOpen}
           selectedTheatre={selectedTheatre}
         />
-      )} */}
+      )}
     </>
   );
 }

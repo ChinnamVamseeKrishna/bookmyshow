@@ -119,7 +119,7 @@ function MovieList() {
       const response = await getAllMovies();
       if (response.success) {
         setMovies(
-          response.movies?.map((item) => {
+          response.data?.map((item) => {
             return {
               ...item,
               key: `movie${item._id}`,

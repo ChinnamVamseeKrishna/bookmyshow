@@ -19,7 +19,7 @@ const addMovie = async (req, res) => {
 const getAllMovies = async (req, res) => {
   try {
     const movies = await Movie.find();
-    res.status(200).json({ success: true, movies });
+    res.status(200).json({ success: true, data: movies });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -65,9 +65,29 @@ const deleteMovie = async (req, res) => {
   }
 };
 
+const getMovieById = async (req, res) => {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found",
+      });
+    }
+    res.status(200).json({ success: true, data: movie });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching movie",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addMovie,
   getAllMovies,
   updateMovie,
   deleteMovie,
+  getMovieById,
 };
