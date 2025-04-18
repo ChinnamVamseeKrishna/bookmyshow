@@ -10,6 +10,8 @@ import Admin from "./pages/Admin";
 import Partner from "./pages/Partner";
 import Profile from "./pages/Profile";
 import SingleMovie from "./pages/home/SingleMovie";
+import BookShow from "./pages/home/BookShow";
+import SuccessPage from "./pages/home/SuccessPage";
 
 function App() {
   return (
@@ -31,7 +33,7 @@ function App() {
               path="/admin"
               element={
                 <ProtectedRoute>
-                  <Admin />{" "}
+                  <Admin />
                 </ProtectedRoute>
               }
             />
@@ -56,6 +58,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SingleMovie />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/book-show/:id"
+              element={
+                <ProtectedRoute>
+                  <BookShow />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/success"
+              element={
+                <ProtectedRoute>
+                  <SuccessPage />
                 </ProtectedRoute>
               }
             />

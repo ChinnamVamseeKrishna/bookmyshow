@@ -22,8 +22,6 @@ export const updateShow = async (data) => {
 };
 
 export const getAllShowsByTheatreId = async (data) => {
-  console.log(data);
-
   try {
     const response = await axiosInstance.get(
       `/api/shows/get-shows-for-theatre/${data?.theatreId}`

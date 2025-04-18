@@ -49,16 +49,14 @@ const ShowModal = ({
       } else {
         message.error(movieResponse.message);
       }
-      console.log(selectedTheatre);
-
       const showResponse = await getAllShowsByTheatreId({
         theatreId: selectedTheatre._id,
       });
       if (showResponse.success) {
-        setShows(showResponse.data);
       } else {
         message.error(showResponse.message);
       }
+      setShows(showResponse.data);
 
       dispatch(HideLoading());
     } catch (err) {
@@ -103,13 +101,13 @@ const ShowModal = ({
   const handleDelete = async (showId) => {
     try {
       dispatch(ShowLoading());
-      const response = await deleteShow({ showId: showId });
+      const response = await deleteShow(showId);
       if (response.success) {
         message.success(response.message);
-        getData();
       } else {
         message.error(response.message);
       }
+      getData();
       dispatch(HideLoading());
     } catch (err) {
       message.error(err.message);
@@ -174,7 +172,6 @@ const ShowModal = ({
                   ...data,
                   date: moment(data.date).format("YYYY-MM-DD"),
                 });
-                console.log(selectedMovie && selectedMovie.title);
               }}
             >
               <EditOutlined />

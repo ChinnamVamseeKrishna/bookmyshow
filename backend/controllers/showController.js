@@ -36,7 +36,6 @@ const deleteShow = async (req, res) => {
     const { id } = req.params;
 
     const show = await Show.findById(id);
-
     if (!show) {
       return res.status(404).json({
         success: false,
@@ -44,7 +43,7 @@ const deleteShow = async (req, res) => {
       });
     }
 
-    await show.remove();
+    await Show.findByIdAndDelete(id);
 
     res.status(200).json({
       success: true,
@@ -107,7 +106,8 @@ const getAllShowsByTheatreId = async (req, res) => {
     const shows = await Show.find({ theatre: id }).populate("movie");
 
     if (!shows.length) {
-      return res.status(404).json({
+      return res.status(200).json({
+        data: [],
         success: false,
         message: "No shows found for this theatre",
       });
@@ -163,7 +163,7 @@ const getAllTheatresForMovie = async (req, res) => {
 
 const getShowById = async (req, res) => {
   try {
-    const { id } = request.body;
+    const { id } = req.body;
 
     const show = await Show.findById(id).populate("movie theatre");
 
@@ -176,7 +176,7 @@ const getShowById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      show,
+      data: show,
     });
   } catch (error) {
     console.log(error);
