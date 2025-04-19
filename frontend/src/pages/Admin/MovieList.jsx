@@ -1,4 +1,4 @@
-import { Button, Table } from "antd";
+import { Button, Table, message } from "antd";
 import MovieForm from "./MovieForm";
 import { ShowLoading, HideLoading } from "../../redux/loaderSlice";
 import { getAllMovies } from "../../api/movie";
@@ -112,7 +112,7 @@ function MovieList() {
   const [formType, setFormType] = useState("add");
   const [isdeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
-
+  const [messageApi, contextHolder] = message.useMessage();
   const getData = async () => {
     try {
       dispatch(ShowLoading());
@@ -127,7 +127,10 @@ function MovieList() {
           })
         );
       } else {
-        console.log(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       dispatch(HideLoading());
     } catch (error) {
@@ -142,6 +145,7 @@ function MovieList() {
 
   return (
     <>
+      {contextHolder}
       <div className="d-flex justify-content-end">
         <Button
           onClick={() => {

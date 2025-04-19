@@ -15,6 +15,7 @@ const SingleMovie = () => {
   const [theatres, setTheatres] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
   const handleDate = (e) => {
     setDate(moment(e.target.value).format("YYYY-MM-DD"));
     navigate(`/movie/${params.id}?date=${e.target.value}`);
@@ -27,11 +28,17 @@ const SingleMovie = () => {
       if (response.success) {
         setMovie(response.data);
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       dispatch(HideLoading());
     } catch (err) {
-      message.error(err.message);
+      messageApi.open({
+        type: "error",
+        content: err.message,
+      });
       dispatch(HideLoading());
     }
   };
@@ -43,12 +50,18 @@ const SingleMovie = () => {
       if (response.success) {
         setTheatres(response.data);
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       dispatch(HideLoading());
     } catch (err) {
       dispatch(HideLoading());
-      message.error(err.message);
+      messageApi.open({
+        type: "error",
+        content: err.message,
+      });
     }
   };
 
@@ -62,6 +75,7 @@ const SingleMovie = () => {
 
   return (
     <>
+      {contextHolder}
       <div className="inner-container">
         {movie && (
           <div className="d-flex single-movie-div">

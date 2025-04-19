@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 const bookingModel = require("./models/bookingModel");
 const showModel = require("./models/showModel");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
-
+const secret = process.env.WEB_HOOK_SECRET;
 const app = express();
 
 app.post(
@@ -21,11 +21,7 @@ app.post(
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        "whsec_fa3aee7fcfa7241055bd54a9f249d2a351f6c0498e91e5e23dcc016430243c5d"
-      );
+      event = stripe.webhooks.constructEvent(req.body, sig, secret);
     } catch (err) {
       console.log(`Webhook signature verification failed:`, err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);

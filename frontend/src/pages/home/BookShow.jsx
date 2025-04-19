@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { message, Card, Row, Col, Button, Modal } from "antd";
 import moment from "moment";
 import { bookShow, makePayment } from "../../api/booking";
-import { CheckoutProvider } from "@stripe/react-stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import CheckoutForm from "./CheckoutForm";
 
@@ -18,12 +18,14 @@ const BookShow = () => {
   // Redux state and hooks
   const { user } = useSelector((state) => state.user); // Extracting user from Redux state
   const dispatch = useDispatch(); // Redux dispatch function
+  const [messageApi, contextHolder] = message.useMessage();
   const [show, setShow] = useState(); // State for holding show details
   const [selectedSeats, setSelectedSeats] = useState([]); // State for managing selected seats
   const params = useParams(); // Extracting URL parameters
   const navigate = useNavigate(); // Navigation hook
   const [transactionId, setTransactionId] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
+  const [clientSecret, setClientSecret] = useState(null);
 
   // Function to fetch show data by ID
   const getData = async () => {
@@ -32,13 +34,18 @@ const BookShow = () => {
       const response = await getShowById(params.id); // API call to fetch show details
       if (response.success) {
         setShow(response.data); // Setting state with fetched show data
-        // message.success(response.message); // Optional success message
       } else {
-        message.error(response.message); // Displaying error message if API call fails
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       dispatch(HideLoading()); // Dispatching action to hide loading state
     } catch (err) {
-      message.error(err.message); // Handling errors from API call
+      messageApi.open({
+        type: "error",
+        content: err.message,
+      });
       dispatch(HideLoading()); // Hiding loading state on error
     }
   };
@@ -128,61 +135,48 @@ const BookShow = () => {
     getData();
   }, []);
 
-  const onToken = async (token) => {
-    console.log("token from stripw", token);
-    dispatch(ShowLoading());
-    const response = await makePayment(
-      token,
-      selectedSeats.length * show.ticketPrice
-    );
-    if (response.success) {
-      message.success(response.message);
-      book(response.data);
-      console.log(response);
-    } else {
-      message.error(response.message);
-    }
-    dispatch(HideLoading());
-  };
-
   const book = async () => {
     try {
-      dispatch(ShowLoading());
       const response = await bookShow({
-        show: params.id,
-        transactionId: transactionId,
-        seats: selectedSeats,
         user: user._id,
+        show: show._id,
+        seats: selectedSeats,
+        transactionId: transactionId,
       });
       if (response.success) {
-        message.success(response.message);
-        navigate("/profile");
+        messageApi.open({
+          type: "success",
+          content: "Booking successful",
+        });
+        console.log();
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: "Booking failed",
+        });
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      messageApi.open({
+        type: "error",
+        content: "Error creating booking",
+      });
     }
   };
 
   const fetchClientSecret = async () => {
     const response = await makePayment(
-      selectedSeats.length * show.ticketPrice * 100,
-      show,
-      selectedSeats,
-      user
+      selectedSeats.length * show.ticketPrice * 100
     );
     setTransactionId(response?.transactionId);
+    setClientSecret(response?.clientSecret);
+    setShowCheckout(true);
     return response?.clientSecret;
   };
 
-  const appearance = {
-    theme: "stripe",
-  };
-  const options = { fetchClientSecret, elementsOptions: { appearance } };
   // JSX rendering
   return (
     <>
+      {contextHolder}
       {show && (
         <Row gutter={24}>
           <Col span={24}>
@@ -222,13 +216,15 @@ const BookShow = () => {
                 <>
                   <div className="max-width-600 mx-auto">
                     <Button
-                      onClick={() => setShowCheckout(true)}
+                      onClick={() => {
+                        fetchClientSecret();
+                      }}
                       type="primary"
                       shape="round"
                       size="large"
                       block
                     >
-                      Pay Now
+                      Checkout
                     </Button>
                   </div>
                 </>
@@ -241,9 +237,15 @@ const BookShow = () => {
                 onCancel={() => setShowCheckout(false)}
                 onClose={() => setShowCheckout(false)}
               >
-                <CheckoutProvider stripe={stripePromise} options={options}>
-                  <CheckoutForm userEmail={user?.email} book={book} />
-                </CheckoutProvider>
+                {clientSecret ? (
+                  <Elements stripe={stripePromise} options={{ clientSecret }}>
+                    <CheckoutForm userEmail={user?.email} book={book} />
+                  </Elements>
+                ) : (
+                  <div style={{ textAlign: "center", padding: "0px 10px" }}>
+                    <p>Loading payment options...</p>
+                  </div>
+                )}
               </Modal>
             </Card>
           </Col>

@@ -14,7 +14,7 @@ const MovieForm = ({
   getData,
 }) => {
   const dispatch = useDispatch();
-
+  const [messageApi, contextHolder] = message.useMessage();
   if (selectedMovie) {
     selectedMovie.releaseDate = moment(selectedMovie.releaseDate).format(
       "YYYY-MM-DD"
@@ -32,16 +32,25 @@ const MovieForm = ({
       }
       if (response.success) {
         getData();
-        message.success(response.message);
+        messageApi.open({
+          type: "success",
+          content: response?.message,
+        });
         setIsModalOpen(false);
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       setSelectedMovie(null);
       dispatch(HideLoading());
     } catch (err) {
       dispatch(HideLoading());
-      message.error(err.message);
+      messageApi.open({
+        type: "error",
+        content: err.message,
+      });
     }
   };
 

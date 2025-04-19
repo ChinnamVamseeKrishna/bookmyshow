@@ -15,7 +15,7 @@ function TheatreList() {
   const [formType, setFormType] = useState("add");
   const [theatres, setTheatres] = useState([]);
   const [isShowModalOpen, setIsShowModalOpen] = useState(false);
-
+  const [messageApi, contextHolder] = message.useMessage();
   const dispatch = useDispatch();
   const getData = async () => {
     try {
@@ -32,7 +32,10 @@ function TheatreList() {
           })
         );
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -115,6 +118,7 @@ function TheatreList() {
   ];
   return (
     <>
+      {contextHolder}
       <div className="d-flex justify-content-end">
         <Button
           type="primary"

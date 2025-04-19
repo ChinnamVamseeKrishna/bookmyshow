@@ -13,6 +13,8 @@ import { SetUser } from "../redux/userSlice";
 import { message, Layout, Menu } from "antd";
 
 function ProtectedRoute({ children }) {
+  const [messageApi, contextHolder] = message.useMessage();
+
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -71,7 +73,10 @@ function ProtectedRoute({ children }) {
       dispatch(ShowLoading());
       const response = await GetCurrentUser();
       if (!response?.success) {
-        message?.error(response?.message);
+        messageApi.open({
+          type: "success",
+          content: response?.message,
+        });
         navigate("/login");
       }
       dispatch(SetUser(response.data));
@@ -89,31 +94,39 @@ function ProtectedRoute({ children }) {
   }, []);
 
   return (
-    user && (
-      <>
-        <Layout>
-          <Header
-            className="d-flex justify-content-between"
-            style={{
-              position: "sticky",
-              top: 0,
-              zIndex: 1,
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <h3 style={{ color: "white" }} className="demo-logo text-white m-0">
-              Book My Show
-            </h3>
-            <Menu theme="dark" mode="horizontal" items={navItems}></Menu>
-          </Header>
-          <div style={{ padding: "24px", minHeight: 300, background: "#fff" }}>
-            {children}
-          </div>
-        </Layout>
-      </>
-    )
+    <>
+      {contextHolder}
+      {user && (
+        <>
+          <Layout>
+            <Header
+              className="d-flex justify-content-between"
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <h3
+                style={{ color: "white" }}
+                className="demo-logo text-white m-0"
+              >
+                Book My Show
+              </h3>
+              <Menu theme="dark" mode="horizontal" items={navItems}></Menu>
+            </Header>
+            <div
+              style={{ padding: "24px", minHeight: 300, background: "#fff" }}
+            >
+              {children}
+            </div>
+          </Layout>
+        </>
+      )}
+    </>
   );
 }
 export default ProtectedRoute;

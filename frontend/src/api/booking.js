@@ -1,12 +1,9 @@
 import { axiosInstance } from ".";
 
-export const makePayment = async (amount, show, seats, user) => {
+export const makePayment = async (amount) => {
   try {
     const response = await axiosInstance.post("/api/booking/make-payment", {
       amount,
-      show,
-      seats,
-      user,
     });
     return response?.data;
   } catch (error) {
@@ -14,9 +11,13 @@ export const makePayment = async (amount, show, seats, user) => {
   }
 };
 
-export const bookShow = (payload) => {
+export const bookShow = async (payload) => {
   try {
-    return axiosInstance.post("/api/booking/book-show", payload);
+    const response = await axiosInstance.post(
+      "/api/booking/book-show",
+      payload
+    );
+    return response?.data;
   } catch (error) {
     console.log("Error while booking show", error);
   }

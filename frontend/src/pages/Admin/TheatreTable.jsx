@@ -7,7 +7,7 @@ import { message, Button, Table } from "antd";
 const TheatresTable = () => {
   const [theatres, setTheatres] = useState([]);
   const dispatch = useDispatch();
-
+  const [messageApi, contextHolder] = message.useMessage();
   const getData = async () => {
     try {
       dispatch(ShowLoading());
@@ -21,12 +21,18 @@ const TheatresTable = () => {
           })
         );
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       dispatch(HideLoading());
     } catch (err) {
       dispatch(HideLoading());
-      message.error(err.message);
+      messageApi.open({
+        type: "error",
+        content: err.message,
+      });
     }
   };
 
@@ -40,13 +46,19 @@ const TheatresTable = () => {
       };
       const response = await updateTheatre(values);
       if (response.success) {
-        message.success(response.message);
+        messageApi.open({
+          type: "success",
+          content: response.message,
+        });
         getData();
       }
       dispatch(HideLoading());
     } catch (err) {
       dispatch(HideLoading());
-      message.error(err.message);
+      messageApi.open({
+        type: "error",
+        content: err.message,
+      });
     }
   };
 
@@ -114,6 +126,7 @@ const TheatresTable = () => {
 
   return (
     <>
+      {contextHolder}
       {theatres && theatres.length > 0 && (
         <Table dataSource={theatres} columns={columns} />
       )}

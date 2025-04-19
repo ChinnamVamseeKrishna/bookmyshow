@@ -11,22 +11,32 @@ const DeleteTheatreModal = ({
   getData,
 }) => {
   const dispatch = useDispatch();
+  const [messageApi, contextHolder] = message.useMessage();
   const handleOK = async () => {
     try {
       dispatch(ShowLoading());
       const theatreId = selectedTheatre._id;
       const response = await deleteTheatre(theatreId);
       if (response.success) {
-        message.success(response.message);
+        messageApi.open({
+          type: "success",
+          content: response.message,
+        });
         getData();
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       setSelectedTheatre(null);
       setIsDeleteModalOpen(false);
       dispatch(HideLoading());
     } catch (err) {
-      message.error(err.message);
+      messageApi.open({
+        type: "error",
+        content: err.message,
+      });
       dispatch(HideLoading());
       setIsDeleteModalOpen(false);
     }
@@ -37,20 +47,23 @@ const DeleteTheatreModal = ({
     setSelectedTheatre(null);
   };
   return (
-    <Modal
-      centered
-      title="Delete Theatre"
-      open={isDeleteModalOpen}
-      onCancel={handleCancel}
-      onOk={handleOK}
-    >
-      <p className="pt-3 fs-18">
-        Are you sure you want to delete this theatre?
-      </p>
-      <p className="pb-3 fs-18">
-        This action can't be undone and you'll lose this theatre data.
-      </p>{" "}
-    </Modal>
+    <>
+      {contextHolder}
+      <Modal
+        centered
+        title="Delete Theatre"
+        open={isDeleteModalOpen}
+        onCancel={handleCancel}
+        onOk={handleOK}
+      >
+        <p className="pt-3 fs-18">
+          Are you sure you want to delete this theatre?
+        </p>
+        <p className="pb-3 fs-18">
+          This action can't be undone and you'll lose this theatre data.
+        </p>{" "}
+      </Modal>
+    </>
   );
 };
 export default DeleteTheatreModal;

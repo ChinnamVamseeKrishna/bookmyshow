@@ -11,22 +11,33 @@ const DeleteMovieModal = ({
   setSelectedMovie,
 }) => {
   const dispatch = useDispatch();
+  const [messageApi, contextHolder] = message.useMessage();
+
   const handleOK = async () => {
     try {
       dispatch(ShowLoading());
       const response = await deleteMovie(selectedMovie._id);
       if (response.success) {
-        message.success(response.message);
+        messageApi.open({
+          type: "success",
+          content: response.message,
+        });
         getData();
         setIsDeleteModalOpen(false);
         setSelectedMovie(null);
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
       dispatch(HideLoading());
     } catch (error) {
       dispatch(HideLoading());
-      message.error(error.message);
+      messageApi.open({
+        type: "error",
+        content: error.message,
+      });
     }
   };
   const handleCancel = () => {
@@ -35,18 +46,21 @@ const DeleteMovieModal = ({
   };
 
   return (
-    <Modal
-      title="Delete Movie"
-      centered
-      open={isDeleteModalOpen}
-      onOk={handleOK}
-      onCancel={handleCancel}
-    >
-      <p>Are you sure you want to delete this movie?</p>
-      <p>
-        <b>{selectedMovie?.name}</b>
-      </p>
-    </Modal>
+    <>
+      {contextHolder}
+      <Modal
+        title="Delete Movie"
+        centered
+        open={isDeleteModalOpen}
+        onOk={handleOK}
+        onCancel={handleCancel}
+      >
+        <p>Are you sure you want to delete this movie?</p>
+        <p>
+          <b>{selectedMovie?.name}</b>
+        </p>
+      </Modal>
+    </>
   );
 };
 

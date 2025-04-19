@@ -13,7 +13,7 @@ function Home() {
   const [searchText, setSearchText] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [messageApi, contextHolder] = message.useMessage();
   const getData = async () => {
     try {
       dispatch(ShowLoading());
@@ -21,10 +21,16 @@ function Home() {
       if (response.success) {
         setMovies(response.data);
       } else {
-        message.error(response.message);
+        messageApi.open({
+          type: "error",
+          content: response.message,
+        });
       }
     } catch (error) {
-      message.error("Something went wrong!");
+      messageApi.open({
+        type: "error",
+        content: "Something went wrong!",
+      });
     } finally {
       dispatch(HideLoading());
     }
@@ -40,6 +46,7 @@ function Home() {
 
   return (
     <>
+      {contextHolder}
       <Row className="justify-content-center w-100">
         <Col xs={{ span: 24 }} lg={{ span: 12 }}>
           <Input
