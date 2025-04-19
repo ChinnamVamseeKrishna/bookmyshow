@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
+const { EmailHelper } = require("../utils/emailHelper");
 
 const registerUser = async (req, res) => {
   const { name, email, password, isAdmin } = req.body;
@@ -61,4 +62,87 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getCurrentUser };
+const otpGenerator = () => {
+  return Math.floor(100000 + Math.random() * 900000);
+};
+const forgotPassword = async (req, res) => {
+  // ask for email
+  // check email in db
+  // if email present generate otp, save otp in db, and send otp to email
+  try {
+    if (req.body.email === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Email required!",
+      });
+    }
+    const user = await User.findOne({ email: req.body.email });
+    if (user === null) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const otp = otpGenerator();
+    user.otp = otp;
+    user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    await EmailHelper("otp.html", user.email, { name: user?.name, otp: otp });
+    return res.status(200).json({
+      success: true,
+      message: "Otp sent to your email",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const resetDetails = req.body;
+    if (!resetDetails.password || !resetDetails.otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Password and otp are required",
+      });
+    }
+    const user = await User.findOne({ email: req.params.email });
+    if (user === null) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    if (user.otpExpiry < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "Otp expired",
+      });
+    }
+    if (user.otp !== resetDetails.otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid otp",
+      });
+    }
+    user.password = resetDetails.password;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+    return res.status(200).json({
+      success: true,
+      message: "Reset Successful",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = {
+  resetPassword,
+  forgotPassword,
+  registerUser,
+  loginUser,
+  getCurrentUser,
+};

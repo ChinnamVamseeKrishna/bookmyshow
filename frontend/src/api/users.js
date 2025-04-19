@@ -29,3 +29,26 @@ export const GetCurrentUser = async () => {
     return { status: error?.status, errorMessage: error.response.data.message };
   }
 };
+
+export const ForgotPassword = async (value) => {
+  try {
+    const response = await axiosInstance.patch(
+      "/api/users/forgot-password",
+      value
+    );
+    return response.data;
+  } catch (error) {
+    return { status: error?.status, errorMessage: error.response.data.message };
+  }
+};
+export const ResetPassword = async (value, email) => {
+  try {
+    const response = await axiosInstance.patch(
+      `/api/users/reset-password/${email}`,
+      value
+    );
+    return response.data;
+  } catch (error) {
+    return { status: error?.status, errorMessage: error.response.data.message };
+  }
+};

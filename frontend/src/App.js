@@ -12,6 +12,8 @@ import Profile from "./pages/Profile";
 import SingleMovie from "./pages/home/SingleMovie";
 import BookShow from "./pages/home/BookShow";
 import SuccessPage from "./pages/home/SuccessPage";
+import Forgot from "./pages/Profile/ForgotPassword";
+import Reset from "./pages/Profile/ResetPassword";
 
 function App() {
   return (
@@ -74,6 +76,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SuccessPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/forgot"
+              element={
+                <ProtectedRoute>
+                  <Forgot />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reset/:email"
+              element={
+                <ProtectedRoute>
+                  <Reset />
                 </ProtectedRoute>
               }
             />
