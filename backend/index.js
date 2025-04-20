@@ -1,5 +1,6 @@
 const express = require("express");
 require("dotenv").config();
+const cors = require("cors");
 const connectDB = require("./config/dbconfig");
 const userRouter = require("./routes/userRoute");
 const movieRouter = require("./routes/movieRoute");
@@ -9,6 +10,14 @@ const bookingRouter = require("./routes/bookingRoute");
 const path = require("path");
 
 const app = express();
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 const clientBuildPath = path.join(__dirname, "../frontend/build");
 
 app.use(express.static(clientBuildPath));
