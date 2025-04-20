@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const { EmailHelper } = require("../utils/emailHelper");
+const bcrypt = require("bcrypt");
 
 const registerUser = async (req, res) => {
   const { name, email, password, isAdmin } = req.body;
@@ -10,6 +11,14 @@ const registerUser = async (req, res) => {
     if (userExists) {
       return res.status(409).json({ message: "User already exists" });
     }
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      isAdmin,
+    });
     const savedUser = await user.save();
     res
       .status(201)
@@ -18,6 +27,14 @@ const registerUser = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// async function hashPassword(password) {
+//   const salt = await bcrypt.genSalt(10);
+//   console.log(salt);
+
+//   const hashedPassword = await bcrypt.hash(password, salt);
+//   return hashedPassword;
+// }
 
 const loginUser = async (req, res) => {
   try {
@@ -28,9 +45,16 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "User does not exist!" });
     }
-    if (req.body.password !== user.password) {
-      return res.status(400).json({ message: "Incorrect password" });
+    // if (req.body.password !== user.password) {
+    //   return res.status(400).json({ message: "Incorrect password" });
+    // }
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Incorrect password" });
     }
+
     res.status(200).json({
       message: "Login successful",
       user: user,
