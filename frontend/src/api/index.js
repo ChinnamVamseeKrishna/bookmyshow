@@ -1,5 +1,8 @@
 import axios from "axios";
-const isProduction = process?.env?.NODE_ENV === "production";
+
+const isProduction = process.env.REACT_APP_PROD === "production";
+//  process?.env?.NODE_ENV === "production";
+console.log(isProduction);
 
 export const axiosInstance = axios.create({
   baseURL: isProduction
