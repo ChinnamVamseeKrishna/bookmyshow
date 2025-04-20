@@ -1,5 +1,5 @@
 import axios from "axios";
-const isProduction = import.meta.env.PROD;
+const isProduction = process?.env?.NODE_ENV === "production";
 
 export const axiosInstance = axios.create({
   baseURL: isProduction
