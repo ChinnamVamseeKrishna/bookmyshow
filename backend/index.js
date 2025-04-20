@@ -8,6 +8,7 @@ const theatreRouter = require("./routes/theatreRoute");
 const showRouter = require("./routes/showRoute");
 const bookingRouter = require("./routes/bookingRoute");
 const path = require("path");
+const port = process.env.PORT || 8082;
 
 const app = express();
 app.use(
@@ -36,6 +37,6 @@ app.get(/(.*)/, (req, res) => {
   res.sendFile(path.join(clientBuildPath, "index.html"));
 });
 
-app.listen(8082, () => {
-  console.log("Server is running on port 8082");
+app.listen(port, () => {
+  console.log(`Server is running on port 8082${port}`);
 });
