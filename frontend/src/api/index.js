@@ -1,7 +1,10 @@
 import axios from "axios";
+const isProduction = import.meta.env.PROD;
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000/",
+  baseURL: isProduction
+    ? "https://bookmyshow-c0q5.onrender.com/"
+    : "http://localhost:3000",
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("token")}`,

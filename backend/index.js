@@ -13,11 +13,12 @@ const port = process.env.PORT || 8082;
 const app = express();
 app.use(
   cors({
-    origin: "*",
+    origin: "https://bookmyshow-c0q5.onrender.com",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.options("*", cors());
 
 const clientBuildPath = path.join(__dirname, "../frontend/build");
 
