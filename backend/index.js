@@ -14,7 +14,7 @@ const app = express();
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -39,4 +39,11 @@ app.get(/(.*)/, (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on port 8082${port}`);
+});
+
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err.stack);
+  res
+    .status(500)
+    .json({ message: "Internal Server Error", error: err.message });
 });
