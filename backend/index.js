@@ -18,7 +18,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.options("*", cors());
+app.options(/(.*)/, cors());
 
 const clientBuildPath = path.join(__dirname, "../frontend/build");
 
@@ -39,7 +39,7 @@ app.get(/(.*)/, (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port 8082${port}`);
+  console.log(`Server is running on port ${port}`);
 });
 
 app.use((err, req, res, next) => {
