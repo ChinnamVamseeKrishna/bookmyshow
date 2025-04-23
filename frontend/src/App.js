@@ -80,14 +80,7 @@ function App() {
               }
             />
             <Route path="/forgot" element={<Forgot />} />
-            <Route
-              path="/reset/:email"
-              element={
-                <ProtectedRoute>
-                  <Reset />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/reset/:email" element={<Reset />} />
           </Routes>
         </Router>
       </Provider>
