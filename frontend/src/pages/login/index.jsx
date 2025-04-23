@@ -16,7 +16,6 @@ function Login() {
 
       if (status === 200) {
         messageApi.open({ type: "success", content: "Login successful!" });
-        localStorage.setItem("token", data?.data);
         setTimeout(() => {
           navigate("/");
         }, 1000);

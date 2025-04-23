@@ -27,14 +27,6 @@ async function EmailHelper(templateName, receiverEmail, creds) {
       text: `Hi ${creds.name} this is your reset otp ${creds.otp}`,
       html: replaceContent(content, creds),
     };
-    // const transportDetails = {
-    //   host: "smtp.sendgrid.net",
-    //   port: 587,
-    //   auth: {
-    //     user: "apikey",
-    //     pass: SENDGRID_KEY,
-    //   },
-    // };
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -43,7 +35,6 @@ async function EmailHelper(templateName, receiverEmail, creds) {
       },
     });
     transporter.sendMail(emailDetails);
-    console.log("Email sent");
   } catch (error) {
     console.log(error);
   }

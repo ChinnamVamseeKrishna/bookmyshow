@@ -7,7 +7,7 @@ import {
   ProfileOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { GetCurrentUser } from "../api/users";
+import { GetCurrentUser, logoutUser } from "../api/users";
 import { ShowLoading, HideLoading } from "../redux/loaderSlice";
 import { SetUser } from "../redux/userSlice";
 import { message, Layout, Menu } from "antd";
@@ -23,6 +23,9 @@ function ProtectedRoute({ children }) {
       label: "Home",
       key: "/home",
       icon: <HomeOutlined />,
+      onClick: () => {
+        navigate("/");
+      },
     },
     {
       label: `${user?.name}`,
@@ -30,37 +33,39 @@ function ProtectedRoute({ children }) {
       icon: <UserOutlined />,
       children: [
         {
-          label: (
-            <span
-              onClick={() => {
-                if (user?.role === "admin") {
-                  navigate("/admin");
-                } else if (user?.role === "partner") {
-                  navigate("/partner");
-                } else {
-                  navigate("/profile");
-                }
-              }}
-            >
-              My Profile
-            </span>
-          ),
+          label: <span>My Profile</span>,
           key: "/user/profile",
           icon: <ProfileOutlined />,
+          onClick: () => {
+            if (user?.role === "admin") {
+              navigate("/admin");
+            } else if (user?.role === "partner") {
+              navigate("/partner");
+            } else {
+              navigate("/profile");
+            }
+          },
         },
         {
-          label: (
-            <span
-              onClick={() => {
-                localStorage.removeItem("token");
-                navigate("/login");
-              }}
-            >
-              Logout
-            </span>
-          ),
+          label: "Logout",
+
           key: "/user/logout",
           icon: <LogoutOutlined />,
+          onClick: async () => {
+            const logoutResponse = await logoutUser();
+            if (logoutResponse.success) {
+              messageApi.open({
+                type: "success",
+                content: "Logged out",
+              });
+            } else {
+              messageApi.open({
+                type: "error",
+                content: "Logout failed",
+              });
+            }
+            navigate("/login");
+          },
         },
       ],
     },
@@ -74,7 +79,7 @@ function ProtectedRoute({ children }) {
       const response = await GetCurrentUser();
       if (!response?.success) {
         messageApi.open({
-          type: "success",
+          type: "error",
           content: response?.message,
         });
         navigate("/login");
@@ -82,15 +87,11 @@ function ProtectedRoute({ children }) {
       dispatch(SetUser(response.data));
       dispatch(HideLoading());
     } catch (error) {
-      console.log();
+      console.log(error);
     }
   };
   useEffect(() => {
-    if (localStorage?.getItem("token")) {
-      getValidUser();
-    } else {
-      navigate("/login");
-    }
+    getValidUser();
   }, []);
 
   return (

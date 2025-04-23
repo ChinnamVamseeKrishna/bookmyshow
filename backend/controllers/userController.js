@@ -4,8 +4,7 @@ const { EmailHelper } = require("../utils/emailHelper");
 const bcrypt = require("bcrypt");
 
 const registerUser = async (req, res) => {
-  const { name, email, password, isAdmin } = req.body;
-  const user = new User({ name, email, password, isAdmin });
+  const { name, email, password, role } = req.body;
   try {
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -17,12 +16,13 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      isAdmin,
+      role: role,
     });
     const savedUser = await user.save();
-    res
-      .status(201)
-      .json({ message: "Registration successful", user: savedUser });
+    res.status(201).json({
+      message: "Registration successful",
+      user: { name: savedUser?.name, email: savedUser?.email },
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -39,15 +39,11 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+
     if (!user) {
       return res.status(400).json({ message: "User does not exist!" });
     }
-    // if (req.body.password !== user.password) {
-    //   return res.status(400).json({ message: "Incorrect password" });
-    // }
+
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (!isMatch) {
       return res
@@ -55,15 +51,32 @@ const loginUser = async (req, res) => {
         .json({ success: false, message: "Incorrect password" });
     }
 
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({
       message: "Login successful",
-      user: user,
-      data: token,
+      user,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Internal server error" });
   }
+};
+
+const logoutUser = async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Lax",
+  });
+  res.json({ success: true, message: "Logged out" });
 };
 
 const getCurrentUser = async (req, res) => {
@@ -102,7 +115,7 @@ const forgotPassword = async (req, res) => {
     }
     const user = await User.findOne({ email: req.body.email });
     if (user === null) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         message: "User not found",
       });
@@ -169,4 +182,5 @@ module.exports = {
   registerUser,
   loginUser,
   getCurrentUser,
+  logoutUser,
 };

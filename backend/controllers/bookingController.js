@@ -59,8 +59,6 @@ const bookShow = async (req, res) => {
         },
       });
 
-    console.log(populatedBooking);
-
     await EmailHelper("ticketTemplate.html", populatedBooking.user.email, {
       name: populatedBooking.user.name,
       movie: populatedBooking.show.movie.name,
@@ -86,7 +84,29 @@ const bookShow = async (req, res) => {
   }
 };
 
+const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ user: req.userId })
+      .populate("show")
+      .populate({
+        path: "show",
+        populate: {
+          path: "movie",
+          model: "Movie",
+        },
+      })
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, bookings });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch bookings", success: false });
+  }
+};
+
 module.exports = {
   makePayment,
   bookShow,
+  getAllBookings,
 };

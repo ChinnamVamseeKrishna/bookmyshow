@@ -8,7 +8,6 @@ function Forgot() {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const onFinish = async (values) => {
-    console.log(values);
     try {
       const response = await ForgotPassword(values);
       if (response.success) {

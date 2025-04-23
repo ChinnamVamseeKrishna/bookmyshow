@@ -148,7 +148,6 @@ const BookShow = () => {
           type: "success",
           content: "Booking successful",
         });
-        console.log();
       } else {
         messageApi.open({
           type: "error",

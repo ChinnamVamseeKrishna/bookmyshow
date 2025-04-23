@@ -9,8 +9,23 @@ const showRouter = require("./routes/showRoute");
 const bookingRouter = require("./routes/bookingRoute");
 const path = require("path");
 const port = process.env.PORT || 8082;
+// const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 
 const app = express();
+// app.enable("trust proxy");
+// app.use(helmet.contentSecurityPolicy({
+//   directives:{
+//     default:["'self'"],
+//     scriptSrc:["'self'", "'unsafe-inline'"],
+//     styleSrc:["'self'", "https://fonts.googleapis.com"],
+//     fontSrc:["'self'", "https://fonts.gstatic.com"],
+//     imgSrc:["'self'", "data:"],
+//   }
+// }))
+app.use(helmet());
+app.use(cookieParser());
 app.use(
   cors({
     origin: "https://bookmyshow-c0q5.onrender.com",
@@ -26,6 +41,15 @@ app.use(express.static(clientBuildPath));
 
 app.use(express.json());
 connectDB();
+
+// const limiter = rateLimit({
+//   validate: { xForwardedForHeader: false },
+//   windowMs: 15 * 60 * 1000,
+//   max: 100,
+//   message: "Too many requests from this IP",
+// });
+
+// app.use(limiter);
 
 //Routes
 app.use("/api/users", userRouter);

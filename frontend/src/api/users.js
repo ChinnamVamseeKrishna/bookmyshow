@@ -38,7 +38,7 @@ export const ForgotPassword = async (value) => {
     );
     return response.data;
   } catch (error) {
-    return { status: error?.status, errorMessage: error.response.data.message };
+    return { status: error?.status, message: error.message };
   }
 };
 export const ResetPassword = async (value, email) => {
@@ -47,6 +47,15 @@ export const ResetPassword = async (value, email) => {
       `/api/users/reset-password/${email}`,
       value
     );
+    return response.data;
+  } catch (error) {
+    return { status: error?.status, errorMessage: error.response.data.message };
+  }
+};
+
+export const logoutUser = async () => {
+  try {
+    const response = await axiosInstance.post(`/api/users/logout`);
     return response.data;
   } catch (error) {
     return { status: error?.status, errorMessage: error.response.data.message };

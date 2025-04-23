@@ -79,14 +79,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/forgot"
-              element={
-                <ProtectedRoute>
-                  <Forgot />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/forgot" element={<Forgot />} />
             <Route
               path="/reset/:email"
               element={
